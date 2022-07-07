@@ -3,6 +3,8 @@
 Shows a small evolution indicator ont the top button flow
 Changes the bug icon to the highest possible bug level for the current evolution
 
+![Evolution Indicator](src/thumbnail.png)
+
 
 # Installation
 1. In Game Install
@@ -27,3 +29,8 @@ If you find the mod or the source code useful, consider:
 
 
 # Screenshots
+![Evolution Indicator 20](screenshots/ddd-evolution-indicator_mod_20.png)
+![Evolution Indicator 42](screenshots/ddd-evolution-indicator_mod_42.png)
+![Evolution Indicator 69](screenshots/ddd-evolution-indicator_mod_69.png)
+
+![Evolution Indicator Alert](screenshots/ddd-evolution-indicator_mod_alert.png)
