@@ -1,0 +1,14 @@
+{
+  "name": "ddd-evolution-indicator",
+  "version": "0.0.1",
+  "title": "DDD Evolution Indicator",
+  "author": "DDDGamer",
+  "contact": "https://github.com/deniszholob/factorio-mod-evolution-indicator/issues",
+  "homepage": "https://discord.gg/PkyzXzz",
+  "description": "This mod adds in a small indicator of evolution and the highest level of enemies correspond to it",
+  "factorio_version": "1.1",
+  "dependencies": [
+    "base >= 1.1",
+    "stdlib"
+  ]
+}

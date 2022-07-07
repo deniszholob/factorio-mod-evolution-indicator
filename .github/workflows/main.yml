@@ -1,0 +1,68 @@
+# CI/CD for Github Actions
+# @author Denis Zholob (deniszholob.com)
+# ====================================== #
+
+name: Package and Release
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [main]
+  # pull_request:
+  #   branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  MOD_INFO: "src/info.json"
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Package Name
+        shell: bash
+        run: |
+          echo "PACKAGE_NAME=$(jq -r .name $MOD_INFO)"  >> $GITHUB_ENV
+
+      - name: Package Version
+        shell: bash
+        run: |
+          echo "PACKAGE_VERSION=$(jq -r .version $MOD_INFO)"  >> $GITHUB_ENV
+
+      - name: Factorio Mod packaging
+        uses: Roang-zero1/factorio-mod-package@v1.2.2
+        with:
+          mod_base_dir: src/
+
+      - name: Display current directory structure
+        run: ls -R
+
+      - name: Archive Package
+        uses: actions/upload-artifact@v3
+        with:
+          path: src/dist/${{env.PACKAGE_NAME}}_${{env.PACKAGE_VERSION}}.zip
+          name: ARCHIVED_MOD_PACKAGE
+
+      # ====================================================================== #
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{env.PACKAGE_NAME}}_${{env.PACKAGE_VERSION}}.zip
+          tag: ${{env.PACKAGE_VERSION}}
+          body: |
+            DDDGamer's Evolution Indicator Mod.
+
+            * **Expand the _Assets_ below.**
+            * Download the `${{env.PACKAGE_NAME}}_${{env.PACKAGE_VERSION}}.zip` file.
+            * See [installation instructions](https://github.com/deniszholob/factorio-mod-evolution-indicator#readme)
+          artifacts: |
+            src/dist/${{env.PACKAGE_NAME}}_${{env.PACKAGE_VERSION}}.zip
+          artifactErrorsFailBuild: true
+          draft: false # true to create a draft (unpublished) release, false to create a published one. Default: false

@@ -1,0 +1,50 @@
+{
+  "files.exclude": {
+    "**/.github": false,
+    "**/screenshots/": false,
+    "**/.editorconfig": false,
+    "**/.gitignore": false,
+    "**/.lua-format-config.yml": false,
+    "**/FUNDING.yml": false,
+    "**/LICENSE": false
+  },
+  "editor.renderWhitespace": "all",
+  "editor.rulers": [
+    100
+  ],
+  "explorer.sortOrderLexicographicOptions": "lower", // Case sensitive file ordering in tree
+  "editor.semanticHighlighting.enabled": true,
+  "workbench.iconTheme": "material-icon-theme",
+  "Lua.runtime.version": "Lua 5.2",
+  "Lua.workspace.library": [
+    "./factorio"
+  ],
+  "Lua.diagnostics.globals": [
+    "game",
+    "script",
+    "remote",
+    "commands",
+    "settings",
+    "rcon",
+    "rendering",
+    "global",
+    "defines",
+    "serpent",
+    "log",
+    "localised_print",
+    "table_size",
+    "mods",
+    "__DebugAdapter",
+    "__Profiler"
+  ],
+  "factorio.versions": [
+    {
+      "name": "dddgamer-latest",
+      "factorioPath": "g:\\Games\\Steam\\steamapps\\common\\Factorio\\bin\\x64\\factorio.exe",
+      "active": true
+    }
+  ],
+  "cSpell.words": [
+    "Factorio"
+  ],
+}
