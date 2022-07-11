@@ -1,10 +1,9 @@
---- Styles Module
---- Collection of common styles
+--- Styles Module - Collection of common styles
 --- @usage local Styles = require('util/Styles')
---- ------------------------------------------------------- ---
 --- @author Denis Zholob (DDDGamer)
---- github: https://github.com/deniszholob/factorio-softmod-pack
---- ======================================================= ---
+--- @see github: https://github.com/deniszholob/factorio-softmod-pack
+--- ======================================================================== ---
+
 
 Styles = {
   btn_menu = {

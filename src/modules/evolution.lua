@@ -1,27 +1,27 @@
---- Evolution Mod
+--- Evolution Module
 --- Uses locale evolution.cfg
---- @usage require('modules+/evolution')
---- ------------------------------------------------------- ---
+--- @usage require('modules/evolution')
 --- @author Denis Zholob (DDDGamer)
 --- @see github: https://github.com/deniszholob/factorio-mod-evolution-indicator
---- ======================================================= ---
+--- ======================================================================== ---
 
--- Dependencies --
--- ======================================================= --
+--- Dependencies --
+--- ======================================================================== ---
 -- stdlib
 local Event = require('__stdlib__/stdlib/event/event')
 local Math = require('__stdlib__/stdlib/utils/math') -- Math.round_to(x, pres)
 -- util
 local Colors = require('util/Colors')
 local GUI = require('util/GUI')
+local Sprite = require("util/Sprite")
 local Sprites = require("util/Sprites")
 local Styles = require('util/Styles')
 local Time = require("util/Time")
 
--- Constants --
--- ======================================================= --
+--- Constants --
+--- ======================================================================== ---
 Evolution = {
-  MASTER_FRAME_NAME = 'frame_Evolution',
+  MASTER_FRAME_NAME = 'frame_main_Evolution',
   EVOLUTION_FLOW_NAME = 'flw_Evolution',
   EVOLUTION_SPRITE_NAME = 'sprite_Evolution',
   EVOLUTION_LABEL_NAME = 'lbl_Evolution',
@@ -49,27 +49,27 @@ Evolution = {
   REFRESH_PERIOD = 5, -- seconds
 }
 
--- Event Functions --
--- ======================================================= --
+--- Event Functions --
+--- ======================================================================== ---
 --- When new player joins add a btn to their menu bar
 --- Redraw this mod's master frame (if desired)
---- @param event defines.events.on_player_joined_game
+--- @param event EventData.on_player_joined_game defines.events.on_player_joined_game
 function Evolution.on_player_joined_game(event)
   local player = game.players[event.player_index]
   Evolution.draw_master_frame(player)
 end
 
 --- When a player leaves clean up their GUI in case this mod gets removed or changed next time
---- @param event defines.events.on_player_left_game
+--- @param event EventData.on_player_left_game defines.events.on_player_left_game
 function Evolution.on_player_left_game(event)
   local player = game.players[event.player_index]
   GUI.destroy_element(Evolution.get_master_frame(player))
 end
 
 --- Refresh the game time each second
---- @param event defines.events.on_tick
+--- @param event EventData.on_tick defines.events.on_tick
 function Evolution.on_tick(event)
-  local refresh_period = Evolution.REFRESH_PERIOD
+  local refresh_period = Evolution.REFRESH_PERIOD -- (sec)
   if (Time.tick_to_sec(game.tick) % refresh_period == 0) then
     for i, player in pairs(game.connected_players) do
       Evolution.update_evolution(player)
@@ -79,14 +79,14 @@ function Evolution.on_tick(event)
   end
 end
 
--- Event Registration --
--- ======================================================= --
+--- Event Registration --
+--- ======================================================================== ---
 Event.register(defines.events.on_player_joined_game, Evolution.on_player_joined_game)
 Event.register(defines.events.on_player_left_game, Evolution.on_player_left_game)
 Event.register(defines.events.on_tick, Evolution.on_tick)
 
--- GUI Functions --
--- ======================================================= --
+--- GUI Functions --
+--- ======================================================================== ---
 
 
 --- GUI Function
@@ -102,7 +102,7 @@ function Evolution.draw_master_frame(player)
         type = 'frame',
         name = Evolution.MASTER_FRAME_NAME,
         direction = 'vertical',
-        tooltip = { "Evolution.master_frame_caption" },
+        tooltip = { "Evolution.main_frame_caption" },
       }
     )
     -- GUI.element_apply_style(master_frame, Styles.frm_menu_no_pad)
@@ -111,10 +111,10 @@ function Evolution.draw_master_frame(player)
   end
 end
 
--- GUI Function
+--- GUI Function
 --- Fills frame with worst enemy icon and evolution percentage
 --- @param container LuaGuiElement parent container to add GUI elements to
---- @param player LuaPlayer  player calling the function
+--- @param player LuaPlayer player calling the function
 function Evolution.fill_master_frame(container, player)
   local h_flow = GUI.add_element(container,
     {
@@ -129,14 +129,14 @@ function Evolution.fill_master_frame(container, player)
     {
       type = 'sprite',
       name = Evolution.EVOLUTION_SPRITE_NAME,
-      tooltip = { "Evolution.master_frame_caption" },
+      tooltip = { "Evolution.main_frame_caption" },
     }
   )
   local label = GUI.add_element(h_flow,
     {
       type = 'label',
       name = Evolution.EVOLUTION_LABEL_NAME,
-      tooltip = { "Evolution.master_frame_caption" },
+      tooltip = { "Evolution.main_frame_caption" },
     }
   )
 
@@ -144,7 +144,7 @@ function Evolution.fill_master_frame(container, player)
     {
       type = 'progressbar',
       name = Evolution.EVOLUTION_PROGRESS_NAME,
-      tooltip = { "Evolution.master_frame_caption" },
+      tooltip = { "Evolution.main_frame_caption" },
       value = 0.2
     }
   )
@@ -169,7 +169,7 @@ function Evolution.update_evolution(player)
   local evolution_stats = Evolution.getEvolutionStats(player)
   if (sprite_evolution.sprite ~= evolution_stats.sprite) then
     sprite_evolution.sprite = evolution_stats.sprite
-    player.print({ "Evolution.alert", Sprites.getSpriteRichText(evolution_stats.sprite) })
+    player.print({ "Evolution.alert", Sprite.getSpriteRichText(evolution_stats.sprite) })
   end
   -- sprite_evolution.tooltip = evolution_stats.evolution_percent
   lbl_evolution.caption = evolution_stats.evolution_percent
@@ -177,8 +177,8 @@ function Evolution.update_evolution(player)
   evo_progress_bar.style.color = evolution_stats.color
 end
 
--- Logic Functions --
--- ======================================================= --
+--- Logic Functions --
+--- ======================================================================== ---
 
 --- Figures out some evolution stats and returns them (Sprite and evo %)
 --- @param player LuaPlayer current player calling the function
