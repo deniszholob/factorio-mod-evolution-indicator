@@ -1,31 +1,36 @@
---- GUI Helper Module
---- Common GUI functions
+--- GUI Module - Common GUI functions
 --- @usage local GUI = require('util/GUI')
---- ------------------------------------------------------- ---
 --- @author Denis Zholob (DDDGamer)
---- github: https://github.com/deniszholob/factorio-softmod-pack
---- ======================================================= ---
+--- @see github: https://github.com/deniszholob/factorio-softmod-pack
+--- ======================================================================== ---
 
--- Dependencies --
--- ======================================================= --
+--- Dependencies ---
+--- ======================================================================== ---
 local mod_gui = require('mod-gui') -- From `Factorio\data\core\lualib`
 local GUI_Events = require('__stdlib__/stdlib/event/gui')
 
--- Constants --
--- ======================================================= --
+--- Constants ---
+--- ======================================================================== ---
 GUI = {
+  --- @see https://lua-api.factorio.com/latest/LuaGui.html
   MASTER_FRAME_LOCATIONS = {
+    menu = 'menu', -- Button flow (top)
     left = 'left', -- Frame flow
     center = 'center', -- gui.center
-    menu = 'menu', -- Button flow
+    screen = 'screen', -- Draggable Windows
+    goal = 'goal', -- Factorio goal section (left)
+  },
+  EVENTS = {
+      on_gui_click = GUI_Events.on_click,
+      on_gui_checked_state_changed = GUI_Events.on_checked_state_changed,
   }
 }
 
--- Public Functions --
--- ======================================================= --
+--- Public Functions ---
+--- ======================================================================== ---
 
--- Destroys the children of a GUI element
--- @tparam LuaGuiElement el Element to destroy childen of
+--- Destroys the children of a GUI element
+--- @param el LuaGuiElementement to destroy childen of
 function GUI.clear_element(el)
   if el ~= nil then
     for i, child_el in pairs(el.children) do
@@ -34,8 +39,8 @@ function GUI.clear_element(el)
   end
 end
 
--- Toggles element on off (visibility)
--- @tparam LuaGuiElement el Element to toggle visibility of
+--- Toggles element on off (visibility)
+--- @param el LuaGuiElement Element to toggle visibility of
 function GUI.toggle_element(el)
   if el ~= nil then
     if (el.visible == nil) then -- game treats nil as true
@@ -45,17 +50,17 @@ function GUI.toggle_element(el)
   end
 end
 
--- Destroys element if exists
--- @tparam LuaGuiElement el Element
+--- Destroys element if exists
+--- @param el LuaGuiElement Element
 function GUI.destroy_element(el)
   if (el ~= nil) then
     el.destroy()
   end
 end
 
--- Applies a style to the passed in element
--- @tparam LuaGuiElement el Element
--- @tparam LuaStyle style
+--- Applies a style to the passed in element
+--- @param el LuaGuiElement Element
+--- @param style LuaStyle
 function GUI.element_apply_style(el, style)
   if style then
     for name, value in pairs(style) do
@@ -68,10 +73,11 @@ function GUI.element_apply_style(el, style)
   end
 end
 
--- Adds an element to the parent element
--- @param Element Definition
--- @tparam LuaGuiElement parent Element
--- @treturn LuaGuiElement el Element
+--- Adds an element to the parent element and returns it
+--- @see https://lua-api.factorio.com/latest/LuaGuiElement.html#LuaGuiElement.add
+--- @param parent LuaGuiElement Element
+--- @param el table element parameters
+--- @return LuaGuiElement
 function GUI.add_element(parent, el)
   if (parent and parent.el == nil) then
     return parent.add(el)
@@ -80,11 +86,11 @@ function GUI.add_element(parent, el)
   end
 end
 
--- Adds a button to the parent element
--- @tparam LuaGuiElement parent Element
--- @param el_definition element definition
--- @param callback function
--- @treturn LuaGuiElement el
+--- Adds a button to the parent element
+--- @param parent LuaGuiElement Element
+--- @param el_definition table element parameters
+--- @param callback function
+--- Returns the added LuaGuiElement
 function GUI.add_button(parent, el_definition, callback)
   GUI.fail_on_type_mismatch(el_definition, "button")
 
@@ -94,17 +100,17 @@ function GUI.add_button(parent, el_definition, callback)
   GUI.register_if_callback(
     callback,
     el_definition.name,
-    GUI_Events.on_click
+    GUI.EVENTS.on_gui_click
   )
 
   return el
 end
 
--- Adds a sprite-button to the parent element
--- @tparam LuaGuiElement parent Element
--- @param el_definition element definition
--- @param callback function
--- @treturn LuaGuiElement el
+--- Adds a sprite-button to the parent element and returns the added LuaGuiElement
+--- @param parent LuaGuiElement Element
+--- @param el_definition table element parameters
+--- @param callback function
+--- @return LuaGuiElement
 function GUI.add_sprite_button(parent, el_definition, callback)
   GUI.fail_on_type_mismatch(el_definition, "sprite-button")
 
@@ -114,17 +120,17 @@ function GUI.add_sprite_button(parent, el_definition, callback)
   GUI.register_if_callback(
     callback,
     el_definition.name,
-    GUI_Events.on_click
+    GUI.EVENTS.on_gui_click
   )
 
   return el
 end
 
--- Adds a checkbox to the parent element
--- @tparam LuaGuiElement parent Element
--- @param el_definition element definition
--- @param callback function
--- @treturn LuaGuiElement el
+--- Adds a checkbox to the parent element and returns the added LuaGuiElement
+--- @param parent LuaGuiElement Element
+--- @param el_definition table element parameters
+--- @param callback function
+--- @return LuaGuiElement
 function GUI.add_checkbox(parent, el_definition, callback)
   GUI.fail_on_type_mismatch(el_definition, "checkbox")
 
@@ -134,16 +140,19 @@ function GUI.add_checkbox(parent, el_definition, callback)
   GUI.register_if_callback(
     callback,
     el_definition.name,
-    GUI_Events.on_checked_state_changed
+    GUI.EVENTS.on_gui_checked_state_changed
   )
 
   return el
 end
 
--- Helper Functions --
--- ======================================================= --
+--- Helper Functions --
+--- ======================================================================== ---
 
--- Cant register call back without a name, fail if missing
+--- Cant register call back without a name, fail if missing
+--- @param callback function
+--- @param name string
+--- @param register_function function
 function GUI.register_if_callback(callback, name, register_function)
   -- Callback provided
   if (callback) then
@@ -166,7 +175,9 @@ function GUI.register_if_callback(callback, name, register_function)
   end
 end
 
--- If types dont match, error out
+--- If types dont match, error out
+--- @param el LuaGuiElement Element
+--- @param type string
 function GUI.fail_on_type_mismatch(el, type)
   if (not el.type == type) then
     error("Invalid element definition: element type" .. el.type .. " is not " .. type)
@@ -174,9 +185,10 @@ function GUI.fail_on_type_mismatch(el, type)
   end
 end
 
--- @tparam LuaPlayer player player who owns a gui
--- @tparam string sprite_name name/path of the sprite
--- @treturn string sprite_name if valid path if not a question mark sprite
+--- Returns sprite_name string if valid path if not a question mark sprite
+--- @param player LuaPlayer player who owns a gui
+--- @param sprite_name string name/path of the sprite
+--- @return string
 function GUI.get_safe_sprite_name(player, sprite_name)
   if not player.gui.is_valid_sprite_path(sprite_name) then
     sprite_name = "utility/questionmark"
@@ -184,12 +196,15 @@ function GUI.get_safe_sprite_name(player, sprite_name)
   return sprite_name
 end
 
--- @tparam LuaPlayer player player who owns a gui
+--- @param player LuaPlayer player who owns a gui
+--- @return LuaGuiElement
 function GUI.menu_bar_el(player)
   return mod_gui.get_button_flow(player)
 end
 
--- @tparam LuaPlayer player player who owns a gui
+--- @param player LuaPlayer player who owns a gui
+--- @param location string GUI.MASTER_FRAME_LOCATIONS
+--- @return LuaGuiElement|nil
 function GUI.master_frame_location_el(player, location)
   if (location == GUI.MASTER_FRAME_LOCATIONS.left) then
     return mod_gui.get_frame_flow(player)
@@ -197,6 +212,10 @@ function GUI.master_frame_location_el(player, location)
     return player.gui.center
   elseif (location == GUI.MASTER_FRAME_LOCATIONS.menu) then
     return mod_gui.get_button_flow(player)
+  elseif (location == GUI.MASTER_FRAME_LOCATIONS.screen) then
+    return player.gui.screen
+  elseif (location == GUI.MASTER_FRAME_LOCATIONS.goal) then
+    return player.gui.goal
   else
     error('Invalid location ' .. location)
     return nil

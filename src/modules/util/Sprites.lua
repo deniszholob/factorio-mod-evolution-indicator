@@ -1,18 +1,12 @@
--- Sprites Module
--- Holds a list of some sprite names provided in Factorio
---
--- Check Factorio prototype definitions in:
--- * \Factorio\data\core
--- * \Factorio\data\base
---
--- @usage local Sprites = require('util/Sprites')
--- ------------------------------------------------------- --
--- @author Denis Zholob (DDDGamer)
--- github: https://github.com/deniszholob/factorio-softmod-pack
--- ======================================================= --
+--- Sprites Module - Holds a list of some sprite names provided in Factorio
+--- Check Factorio prototype definitions in:
+---   * \Factorio\data\core
+---   * \Factorio\data\base
+--- @usage local Sprites = require('util/Sprites')
+--- @author Denis Zholob (DDDGamer)
+--- @see github: https://github.com/deniszholob/factorio-softmod-pack
+--- ======================================================================== ---
 
--- Constants --
--- ======================================================= --
 Sprites = {
   small_biter = 'entity/small-biter',
   medium_biter = 'entity/medium-biter',
@@ -24,9 +18,5 @@ Sprites = {
   big_spitter = 'entity/big-spitter',
   behemoth_spitter = 'entity/behemoth-spitter',
 }
-
-function Sprites.getSpriteRichText(name)
-  return "[" .. string.gsub(name, "/", "=") .. "]"
-end
 
 return Sprites

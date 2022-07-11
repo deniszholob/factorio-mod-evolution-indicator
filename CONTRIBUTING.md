@@ -20,9 +20,9 @@ There is a [recommended extension](.vscode/extensions.json) `adrianwilczynski.to
 
 
 ## Dev
-* The main mod code is in the [src](./src/) folder
+* The main code is in the [src](./src/) folder
 * See the [src/README.md](./src/README.md) details
-* You can run the [copy-local.sh](./tools/copy-local.sh) script to sync to factorio mods folder
+* You can run the [copy-local.sh](./tools/copy-local.sh) script to sync to factorio folder
 * See [common console commands](https://wiki.factorio.com/Console)
 * A list of existing style can be found in `Factorio/data/core/prototypes/style.lua`
 
