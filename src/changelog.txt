@@ -1,0 +1,21 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.0.3
+Date: 2022-07-11
+  Features:
+    - Add changelog
+  Changes:
+    - Code Cleanup
+  Bugfixes:
+    - Add Prefix to avoid possible name collisions with other mods
+
+---------------------------------------------------------------------------------------------------
+Version: 0.0.2
+Date: 2022-07-07
+  Features:
+    - Mod code added
+
+---------------------------------------------------------------------------------------------------
+Version: 0.0.1
+Date: 2022-07-06
+  Features:
+    - Initial release
