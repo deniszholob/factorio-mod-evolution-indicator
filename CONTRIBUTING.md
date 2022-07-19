@@ -29,6 +29,8 @@ There is a [recommended extension](.vscode/extensions.json) `adrianwilczynski.to
 
 ### References
 * [Factorio API](http://lua-api.factorio.com/latest/)
+* [Factorio Mod Changelog](https://forums.factorio.com/viewtopic.php?f=25&t=67140)
+* [Factorio Wiki - Modding](https://wiki.factorio.com/Modding)
 * [Factorio Wiki - Multiplayer](https://wiki.factorio.com/Multiplayer)
 * [Factorio Wiki - Console](https://wiki.factorio.com/Console)
 * [Factorio Wiki - Research](https://wiki.factorio.com/Research)

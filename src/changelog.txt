@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.0.4
+Date: 2022-07-19
+  Features:
+    - Add settings for refresh period
+  Changes:
+    - Add migration to remove old gui
+  Bugfixes:
+    - Rework gui refresh logic as it was causing nil references in some instances https://github.com/deniszholob/factorio-mod-evolution-indicator/issues/1
+
+---------------------------------------------------------------------------------------------------
 Version: 0.0.3
 Date: 2022-07-11
   Features:
