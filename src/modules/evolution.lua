@@ -21,7 +21,7 @@ local Time = require("util/Time")
 --- Constants --
 --- ======================================================================== ---
 DDD_Evolution = {
-  MASTER_FRAME_NAME = 'frame_main_Evolution',
+  MAIN_FRAME_NAME = 'frame_main_Evolution',
   EVOLUTION_FLOW_NAME = 'flw_Evolution',
   EVOLUTION_SPRITE_NAME = 'sprite_Evolution',
   EVOLUTION_LABEL_NAME = 'lbl_Evolution',
@@ -42,37 +42,58 @@ DDD_Evolution = {
     [0.50] = Colors.blue,
     [0.90] = Colors.darkgreen,
   },
-  get_master_frame = function(player)
-    return GUI.menu_bar_el(player)[DDD_Evolution.MASTER_FRAME_NAME]
-  end,
-
   REFRESH_PERIOD = 5, -- seconds
+  -- GUI element getters
+  get_el_main_frame_container = function(player)
+    return GUI.menu_bar_el(player);
+  end,
+  get_el_main_frame = function(player)
+    return DDD_Evolution.get_el_main_frame_container(player)[DDD_Evolution.MAIN_FRAME_NAME];
+  end,
+  get_el_evo_progress = function(player)
+    return DDD_Evolution.get_el_main_frame(player)[DDD_Evolution.EVOLUTION_PROGRESS_NAME]
+  end,
+  get_el_evo_sprite = function(player)
+    return DDD_Evolution.get_el_main_frame(player)
+        [DDD_Evolution.EVOLUTION_FLOW_NAME][DDD_Evolution.EVOLUTION_SPRITE_NAME]
+  end,
+  get_el_evo_label = function(player)
+    return DDD_Evolution.get_el_main_frame(player)
+        [DDD_Evolution.EVOLUTION_FLOW_NAME][DDD_Evolution.EVOLUTION_LABEL_NAME]
+  end
 }
 
 --- Event Functions --
 --- ======================================================================== ---
---- When new player joins add a btn to their menu bar
---- Redraw this mod's master frame (if desired)
+
+--- When new player is created, create mod GUI for player
+--- @param event EventData.on_player_created defines.events.on_player_created event
+function DDD_Evolution.on_player_created(event)
+  local player = game.players[event.player_index]
+  DDD_Evolution.gui_refresh(player)
+end
+
+--- When new player joins, create mod GUI for player
 --- @param event EventData.on_player_joined_game defines.events.on_player_joined_game
 function DDD_Evolution.on_player_joined_game(event)
   local player = game.players[event.player_index]
-  DDD_Evolution.draw_master_frame(player)
+  DDD_Evolution.gui_refresh(player)
 end
 
---- When a player leaves clean up their GUI in case this mod gets removed or changed next time
+--- When a player leaves, clean up their GUI in case this mod gets removed or changed next time
 --- @param event EventData.on_player_left_game defines.events.on_player_left_game
 function DDD_Evolution.on_player_left_game(event)
   local player = game.players[event.player_index]
-  GUI.destroy_element(DDD_Evolution.get_master_frame(player))
+  DDD_Evolution.gui_destroy(player)
 end
 
---- Refresh the game time each second
+--- Refresh the GUI after REFRESH_PERIOD
 --- @param event EventData.on_tick defines.events.on_tick
 function DDD_Evolution.on_tick(event)
   local refresh_period = DDD_Evolution.REFRESH_PERIOD -- (sec)
   if (Time.tick_to_sec(game.tick) % refresh_period == 0) then
     for i, player in pairs(game.connected_players) do
-      DDD_Evolution.update_evolution(player)
+      DDD_Evolution.gui_refresh(player)
       -- For Testing, artificially add pollution
       -- player.surface.pollute(player.position, 100000)
     end
@@ -81,6 +102,7 @@ end
 
 --- Event Registration --
 --- ======================================================================== ---
+Event.register(defines.events.on_player_created, DDD_Evolution.on_player_created)
 Event.register(defines.events.on_player_joined_game, DDD_Evolution.on_player_joined_game)
 Event.register(defines.events.on_player_left_game, DDD_Evolution.on_player_left_game)
 Event.register(defines.events.on_tick, DDD_Evolution.on_tick)
@@ -88,34 +110,36 @@ Event.register(defines.events.on_tick, DDD_Evolution.on_tick)
 --- GUI Functions --
 --- ======================================================================== ---
 
+--- Main GUI Function to destroy the mod GUI
+--- @param player LuaPlayer player calling the function
+function DDD_Evolution.gui_destroy(player)
+  GUI.destroy_element(DDD_Evolution.get_el_main_frame(player))
+end
 
---- GUI Function
---- Creates the main/master frame where all the GUI content will go in
---- @param player LuaPlayer current player calling the function
-function DDD_Evolution.draw_master_frame(player)
-  local master_frame = DDD_Evolution.get_master_frame(player)
+--- Main GUI Function to create and refresh the mod GUI
+--- @param player LuaPlayer player calling the function
+function DDD_Evolution.gui_refresh(player)
+  local el_main_frame = DDD_Evolution.get_el_main_frame(player);
 
-  if (master_frame == nil) then
-    master_frame = GUI.add_element(
-      GUI.menu_bar_el(player),
+  if (not el_main_frame) then
+    local container = DDD_Evolution.get_el_main_frame_container(player);
+    el_main_frame = GUI.add_element(
+      container,
       {
         type = 'frame',
-        name = DDD_Evolution.MASTER_FRAME_NAME,
+        name = DDD_Evolution.MAIN_FRAME_NAME,
         direction = 'vertical',
         tooltip = { "Evolution.main_frame_caption" },
       }
     )
-    -- GUI.element_apply_style(master_frame, Styles.frm_menu_no_pad)
-
-    DDD_Evolution.fill_master_frame(master_frame, player)
+    DDD_Evolution.gui_fill_main_frame(el_main_frame)
   end
+  DDD_Evolution.gui_update_evolution(player)
 end
 
---- GUI Function
 --- Fills frame with worst enemy icon and evolution percentage
 --- @param container LuaGuiElement parent container to add GUI elements to
---- @param player LuaPlayer player calling the function
-function DDD_Evolution.fill_master_frame(container, player)
+function DDD_Evolution.gui_fill_main_frame(container)
   local h_flow = GUI.add_element(container,
     {
       type = 'flow',
@@ -132,6 +156,7 @@ function DDD_Evolution.fill_master_frame(container, player)
       tooltip = { "Evolution.main_frame_caption" },
     }
   )
+
   local label = GUI.add_element(h_flow,
     {
       type = 'label',
@@ -140,7 +165,7 @@ function DDD_Evolution.fill_master_frame(container, player)
     }
   )
 
-  local evo_progress_bar = container.add(
+  local evo_progress_bar = GUI.add_element(container,
     {
       type = 'progressbar',
       name = DDD_Evolution.EVOLUTION_PROGRESS_NAME,
@@ -148,41 +173,40 @@ function DDD_Evolution.fill_master_frame(container, player)
       value = 0.2
     }
   )
+
   evo_progress_bar.style.width = 98
   evo_progress_bar.style.height = 3
   evo_progress_bar.style.top_margin = 14
 
   GUI.element_apply_style(container, Styles.btn_menu)
   GUI.element_apply_style(label, Styles.btn_menu_lbl)
-  DDD_Evolution.update_evolution(player)
 end
 
---- GUI Function
 --- Updates the enemy icon and evolution percentage, if its a new icon, send out alert
 --- @param player LuaPlayer current player calling the function
-function DDD_Evolution.update_evolution(player)
-  local sprite_evolution = DDD_Evolution.get_master_frame(player)[DDD_Evolution.EVOLUTION_FLOW_NAME][
-      DDD_Evolution.EVOLUTION_SPRITE_NAME]
-  local lbl_evolution = DDD_Evolution.get_master_frame(player)[DDD_Evolution.EVOLUTION_FLOW_NAME][
-      DDD_Evolution.EVOLUTION_LABEL_NAME]
-  local evo_progress_bar = DDD_Evolution.get_master_frame(player)[DDD_Evolution.EVOLUTION_PROGRESS_NAME]
-  local evolution_stats = DDD_Evolution.getEvolutionStats(player)
-  if (sprite_evolution.sprite ~= evolution_stats.sprite) then
-    sprite_evolution.sprite = evolution_stats.sprite
-    player.print({ "Evolution.alert", Sprite.getSpriteRichText(evolution_stats.sprite) })
+function DDD_Evolution.gui_update_evolution(player)
+  local el_evo_sprite = DDD_Evolution.get_el_evo_sprite(player)
+  local el_evo_label = DDD_Evolution.get_el_evo_label(player)
+  local el_evo_progress_bar = DDD_Evolution.get_el_evo_progress(player)
+  local evo_stats = DDD_Evolution.get_evo_stats(player)
+
+  if (el_evo_sprite.sprite ~= evo_stats.sprite) then
+    el_evo_sprite.sprite = evo_stats.sprite
+    player.print({ "Evolution.alert", Sprite.getSpriteRichText(evo_stats.sprite) })
   end
   -- sprite_evolution.tooltip = evolution_stats.evolution_percent
-  lbl_evolution.caption = evolution_stats.evolution_percent
-  evo_progress_bar.value = evolution_stats.evolution
-  evo_progress_bar.style.color = evolution_stats.color
+  el_evo_label.caption = evo_stats.evolution_percent
+  el_evo_progress_bar.value = evo_stats.evolution
+  el_evo_progress_bar.style.color = evo_stats.color
 end
 
 --- Logic Functions --
 --- ======================================================================== ---
 
 --- Figures out some evolution stats and returns them (Sprite and evo %)
+--- @see https://wiki.factorio.com/Enemies#Spawn_chances_by_evolution_factor
 --- @param player LuaPlayer current player calling the function
-function DDD_Evolution.getEvolutionStats(player)
+function DDD_Evolution.get_evo_stats(player)
   local evolution_factor = game.forces["enemy"].evolution_factor;
   local spriteIdx = 0;
 
