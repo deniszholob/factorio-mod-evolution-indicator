@@ -42,7 +42,8 @@ DDD_Evolution = {
     [0.50] = Colors.blue,
     [0.90] = Colors.darkgreen,
   },
-  REFRESH_PERIOD = 5, -- seconds
+  -- REFRESH_PERIOD = 2, -- seconds
+  REFRESH_PERIOD = settings.global['ddd_evolution_settings_refresh_period'].value,
   -- GUI element getters
   get_el_main_frame_container = function(player)
     return GUI.menu_bar_el(player);
@@ -65,6 +66,16 @@ DDD_Evolution = {
 
 --- Event Functions --
 --- ======================================================================== ---
+
+--- When a player changes mod settings
+--- @param event EventData.on_runtime_mod_setting_changed defines.events.on_runtime_mod_setting_changed
+function DDD_Evolution.on_runtime_mod_setting_changed(event)
+  local player = game.players[event.player_index]
+
+  if (event.setting == 'ddd_evolution_settings_refresh_period') then
+    DDD_Evolution.REFRESH_PERIOD = settings.global[event.setting].value
+  end
+end
 
 --- When new player is created, create mod GUI for player
 --- @param event EventData.on_player_created defines.events.on_player_created event
@@ -102,6 +113,10 @@ end
 
 --- Event Registration --
 --- ======================================================================== ---
+Event.register(
+  defines.events.on_runtime_mod_setting_changed,
+  DDD_Evolution.on_runtime_mod_setting_changed
+)
 Event.register(defines.events.on_player_created, DDD_Evolution.on_player_created)
 Event.register(defines.events.on_player_joined_game, DDD_Evolution.on_player_joined_game)
 Event.register(defines.events.on_player_left_game, DDD_Evolution.on_player_left_game)
